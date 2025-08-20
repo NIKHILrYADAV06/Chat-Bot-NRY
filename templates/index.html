@@ -81,12 +81,13 @@
     .session-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; }
     .session {
       display: grid; grid-template-columns: 1fr auto; gap: 6px;
-      padding: 10px; border: 1px solid transparent; border-radius: 10px; margin: 6px;
-      color:white;
+      padding: 10px; border: 1px solid black; border-radius: 10px; margin: 6px;
+
+      color:rgb(0, 0, 0);
       cursor: pointer;
     }
     .session:hover { background: #f8fafc; }
-    .session.active { background: #000000; border-color: #000000; }
+    .session.active { background: #000000; border-color: #000000; color:white }
     .session .meta { font-size: 11px; color: var(--muted); }
     .session .row { display: flex; align-items: center; gap: 6px; }
     .pin { font-size: 16px; opacity: .7; cursor: pointer; }
@@ -94,7 +95,7 @@
     .sess-actions { display: flex; gap: 6px; }
     .icon {
       width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
-      border: 1px solid var(--border); background: var(--chip);
+      border: 1px solid black; background: var(--chip);
     }
     .icon:hover { border-color: #cbd5e1; }
 
