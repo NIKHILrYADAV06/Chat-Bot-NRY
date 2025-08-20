@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AI Bot — NIKHIL</title>
+
+  <!-- Icons -->
+  <link href="https://cdn.boxicons.com/fonts/basic/boxicons.min.css" rel="stylesheet">
+  <link href="https://cdn.boxicons.com/fonts/brands/boxicons-brands.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f3f5f6;
+      --panel: #ffffff;
+      --accent: #34b7f1;
+      --border: #e8eaed;
+      --chip: #f6f8f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --success: #16a34a;
+      --danger: #ef4444;
+      --wa-light: #dcf8c6;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+      height: 100vh;
+      max-height: 100dvh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+    .side-top {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      background-color: #000000;
+      color: white;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700;
+    }
+    .brand img { width: 28px; height: 28px; border-radius: 50%; }
+    .side-actions {
+      display: flex; gap: 8px; padding: 10px 12px; border-bottom: 1px solid black;
+    }
+    .btn {
+      appearance: none; border: 1px solid black;
+      background: var(--panel); padding: 8px 10px; border-radius: 10px; cursor: pointer;
+      font-size: 13px;
+    }
+    .btn:hover { border-color: #cbd5e1; }
+    .btn.primary { background: var(--text); color: white; border-color: var(--text); }
+    .btn.danger { border-color: var(--danger); color: var(--danger); }
+
+    .search { padding: 8px 12px; }
+    .search input {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid black;
+      outline: none;
+    }
+
+    .session-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; }
+    .session {
+      display: grid; grid-template-columns: 1fr auto; gap: 6px;
+      padding: 10px; border: 1px solid transparent; border-radius: 10px; margin: 6px;
+      color:white;
+      cursor: pointer;
+    }
+    .session:hover { background: #f8fafc; }
+    .session.active { background: #000000; border-color: #000000; }
+    .session .meta { font-size: 11px; color: var(--muted); }
+    .session .row { display: flex; align-items: center; gap: 6px; }
+    .pin { font-size: 16px; opacity: .7; cursor: pointer; }
+    .pin.pinned { color: var(--success); opacity: 1; }
+    .sess-actions { display: flex; gap: 6px; }
+    .icon {
+      width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+      border: 1px solid var(--border); background: var(--chip);
+    }
+    .icon:hover { border-color: #cbd5e1; }
+
+    .icon.delete { background: rgb(252, 252, 252); }
+
+    /* Main Chat Panel */
+    .panel {
+      display: grid; grid-template-rows: auto auto 1fr auto auto;
+      height: 100%;
+    }
+     .header{
+      padding: 12px; 
+      background: black;
+      color: white;
+       border-bottom: 1px solid var(--border);
+      display: flex; 
+      align-items: center;
+       gap: 10px;
+       font-weight: 700;
+    }
+    .header img { width: 40px; height: 40px; border-radius: 50%; }
+    .status { 
+        font-size: 12px;
+         color: rgb(189, 184, 184);
+     }
+
+    .toolbar {
+      display: flex; gap: 8px; padding: 8px 12px; background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+    .chip {
+      font-size: 12px; padding: 6px 10px; background: white;
+      border: 0.5px solid black; border-radius: 999px; cursor: pointer;
+      user-select: none;
+    }
+    .chip.active { border-color: blueviolet; box-shadow: 0 0 0 2px rgba(52,183,241,.15) inset; }
+
+    .messages {
+      background: rgb(216, 188, 143);
+       padding: 16px;
+        overflow-y: auto;
+    }
+    .message {
+  display: flex;
+  margin: 14px 0;   /* More vertical spacing between messages */
+  align-items: flex-end;
+}
+
+.user {
+  justify-content: flex-end;  /* Push user chat to the right */
+  margin-left: 50px;          /* Creates horizontal distance from bot side */
+}
+
+.bot {
+  justify-content: flex-start; /* Push bot chat to the left */
+  margin-right: 50px;          /* Creates horizontal distance from user side */
+}
+
+.bubble {
+  padding: 12px 14px;
+  border-radius: 18px;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+    .avatar { width: 32px; height: 32px; border-radius: 50%; margin: 0 6px; }
+    .bubble {
+      max-width: 70%; padding: 10px 12px; border-radius: 18px; line-height: 1.45; font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.06); background: white;
+    }
+    .user .bubble { 
+        background: rgb(8, 230, 200);
+    margin-left: auto;
+    border-bottom-right-radius: 0;
+ }
+    .bot .bubble { background: #7ae481;
+     margin-right: auto; 
+     border-bottom-left-radius: 0;
+     }
+    .timestamp { font-size: 10px; color: black; text-align: right; margin-top: 4px; }
+    .images { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; margin-top: 6px; }
+    .images img { width: 100%; border-radius: 10px; }
+
+    .typing { display: none; padding: 10px 12px; font-size: 14px; color: var(--muted); }
+
+    .preview { display: flex; gap: 6px; padding: 6px 12px; flex-wrap: wrap;}
+    .preview img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid black; }
+
+    .input {
+      display: grid; grid-template-columns: 44px 1fr 44px 44px; gap: 8px;
+      border-top: 1px solid var(--border); padding: 10px; background: rgb(60, 57, 57);
+      border-radius: 30px 30px 0 0; position: relative;
+      align-items: center;
+    }
+    .input input[type="text"] {
+      width: 100%; padding: 12px 14px; border-radius: 22px; border: 1px solid black;
+      outline: none; background: #000000; color:white; font-size: 14px; caret-color: rgb(7, 255, 7);
+    }
+    .iconBtn {
+      width: 44px; height: 44px; border-radius: 50%; border: 1px solid black;
+      background: #ffffff; cursor: pointer; display: grid; place-items: center; font-size: 18px;
+    }
+    .iconBtn:hover { border-color: #cbd5e1; }
+
+    #sendBtn {
+        background: black;
+        color: rgb(253, 253, 253);
+        border-color: black;
+    }
+    #micBtn {
+        background: rgb(4, 243, 20);
+        color: black;
+        border-color: black;
+    }
+    #menuBtn {
+        background: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        border-color: black;
+        justify-content: center;
+        align-items: center;
+        font-size: 25px;
+    }
+
+
+    /* Mobile first tweaks */
+@media (max-width: 768px) {
+  .app {
+    grid-template-columns: 1fr; /* Only chat panel */
+  }
+  .sidebar {
+    position: fixed;
+    top: 0; left: -100%;
+    width: 80%; max-width: 280px;
+    height: 100%;
+    background: var(--panel);
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+  .overlay.show { display: block; }
+  .header .menuBtn {
+    display: inline-flex;
+  }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .overlay { display: none !important; }
+  .header .menuBtn { display: none; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar (Chat History) -->
+    <aside class="sidebar">
+      <div class="side-top">
+        <div class="brand">
+          <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="bot">
+          <div>AI Bot — NIKHIL</div>
+        </div>
+      </div>
+
+      <div class="side-actions">
+        <button class="btn primary" id="newChatBtn"><i class='bxr  bxs-plus-big'  style='color:#ffffff'></i>  New Chat</button>
+        <button class="btn" id="refreshBtn"><i class='bxr  bx-refresh-cw'  style='color:#000000'></i> Refresh</button>
+      </div>
+
+      <div class="search">
+        <input type="text" id="searchSessions" placeholder="Search chats…">
+      </div>
+
+      <ul class="session-list" id="sessionList"></ul>
+    </aside>
+
+    <!-- Main Panel -->
+    <main class="panel">
+      <div class="header">
+  <button class="iconBtn menuBtn" id="menuBtn"><i class='bxr  bx-menu-left'  style='color:#000000'></i> </button>
+  <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" alt="bot">
+  <div>
+    <span id="HeaderTitele">AI Bot - NRY</span>
+    <div class="status" id="status">online</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+
+      <div class="toolbar">
+        <div class="chip active" id="ttsToggle"><i class='bx bx-volume-full'></i>&nbsp;Read replies</div>
+        <div class="chip" id="clearChat"><i class='bx bx-eraser'></i>&nbsp;Clear chat</div>
+        <div class="chip" id="helpBtn"><i class='bx bx-help-circle'></i>&nbsp;Help</div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+      <div class="typing" id="typing">AI Bot is typing…</div>
+      <div class="preview" id="preview"></div>
+
+      <div class="input">
+        <button class="iconBtn" id="imageBtn" title="Attach images"><i class='bx bx-paperclip'></i></button>
+        <input id="message" type="text" placeholder="Type a message" autocomplete="off"/>
+        <button class="iconBtn" id="micBtn" title="Voice input"><i class="bxr  bx-microphone-big" style="color:#000000"></i></button>
+        <button class="iconBtn" id="sendBtn" title="Send"><i class="bx bx-send"></i></button>
+        <input id="fileInput" type="file" accept="image/*" multiple hidden />
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ---------- Elements ----------
+    const messagesEl = document.getElementById("messages");
+    const typingEl = document.getElementById("typing");
+    const inputEl = document.getElementById("message");
+    const sendBtn = document.getElementById("sendBtn");
+    const micBtn = document.getElementById("micBtn");
+    const imageBtn = document.getElementById("imageBtn");
+    const fileInput = document.getElementById("fileInput");
+    const ttsToggle = document.getElementById("ttsToggle");
+    const clearChat = document.getElementById("clearChat");
+    const helpBtn = document.getElementById("helpBtn");
+    const preview = document.getElementById("preview");
+    const sessionList = document.getElementById("sessionList");
+    const newChatBtn = document.getElementById("newChatBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const searchSessions = document.getElementById("searchSessions");
+    const headerTitle = document.getElementById("headerTitle");
+
+    const sidebar = document.querySelector(".sidebar");
+const overlay = document.getElementById("overlay");
+const menuBtn = document.getElementById("menuBtn");
+
+menuBtn.addEventListener("click", () => {
+  sidebar.classList.add("open");
+  overlay.classList.add("show");
+});
+overlay.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+});
+
+
+    // ---------- State ----------
+    let ttsOn = JSON.parse(localStorage.getItem("ttsOn") || "true");
+    if (ttsOn) ttsToggle.classList.add("active");
+    let queuedImages = [];
+    let recognition = null;
+    let recognizing = false;
+    let currentSessionId = null;
+    let allSessions = [];
+
+    // ---------- UI Helpers ----------
+    function getTimestamp() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    function addMessage(text, sender, time, images=[]) {
+      const wrap = document.createElement("div");
+      wrap.className = `message ${sender}`;
+
+      const avatar = document.createElement("img");
+      avatar.className = "avatar";
+      avatar.src = sender === "user"
+        ? "https://cdn-icons-png.flaticon.com/128/4140/4140048.png"
+        : "https://cdn-icons-png.flaticon.com/128/11066/11066889.png";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text || "";
+
+      if (images && images.length) {
+        const grid = document.createElement("div");
+        grid.className = "images";
+        images.forEach(url => {
+          const im = document.createElement("img");
+          im.src = url;
+          grid.appendChild(im);
+        });
+        bubble.appendChild(grid);
+      }
+
+      const ts = document.createElement("div");
+      ts.className = "timestamp";
+      ts.textContent = time || getTimestamp();
+      bubble.appendChild(ts);
+
+      if (sender === "user") { wrap.appendChild(bubble); wrap.appendChild(avatar); }
+      else { wrap.appendChild(avatar); wrap.appendChild(bubble); }
+
+      messagesEl.appendChild(wrap);
+      wrap.scrollIntoView({ behavior: "smooth", block: "end" });
+
+      if (sender === "bot" && ttsOn && 'speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      }
+    }
+    function setTyping(on) { typingEl.style.display = on ? "block" : "none"; }
+    function clearPreview() { preview.innerHTML = ""; queuedImages = []; }
+    function showHelp() {
+      alert([
+        "Tips:",
+        "• Left sidebar = chat history (click to open).",
+        "• Double-click a chat title to rename.",
+        "• Pin icon keeps a chat on top.",
+        "• Use the Clear chat chip to wipe only the current chat.",
+        "• You can attach images and speak messages via mic."
+      ].join("\n"));
+    }
+
+    // ---------- Sidebar ----------
+    function renderSessions(list) {
+      sessionList.innerHTML = "";
+      list.forEach(s => {
+        const li = document.createElement("li");
+        li.className = "session" + (s.id === currentSessionId ? " active" : "");
+        li.dataset.id = s.id;
+
+        const left = document.createElement("div");
+        const title = document.createElement("div");
+        title.textContent = s.title || "Untitled";
+        title.title = "Double-click to rename";
+        title.style.fontWeight = "600";
+        title.ondblclick = () => renameSessionInline(s.id, title);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${s.message_count} messages`;
+
+        left.appendChild(title);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        right.className = "sess-actions";
+        const pin = document.createElement("div");
+        pin.className = "icon pin" + (s.pinned ? " pinned" : "");
+        pin.innerHTML = s.pinned ? "<i class='bxr  bx-pin'  style='color:#000000'></i> " : "<i class='bxr  bx-pin'  style='color:#000000'></i> ";
+        pin.title = s.pinned ? "Unpin" : "Pin";
+        pin.onclick = async (e) => {
+          e.stopPropagation();
+          await fetch(`/api/sessions/${s.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pinned: !s.pinned })
+          });
+          await loadSessions();
+        };
+
+        const del = document.createElement("div");
+        del.className = "icon delete";
+        del.innerHTML = "<i class='bxr  bx-trash-alt'  style='color:#000000'></i> ";
+        del.title = "Delete";
+        del.onclick = async (e) => {
+          e.stopPropagation();
+          if (!confirm("Delete this chat?")) return;
+          await fetch(`/api/sessions/${s.id}`, { method: "DELETE" });
+          await loadSessions(true);
+        };
+
+        right.appendChild(pin);
+        right.appendChild(del);
+
+        li.appendChild(left);
+        li.appendChild(right);
+
+        li.onclick = () => switchSession(s.id);
+        sessionList.appendChild(li);
+      });
+    }
+
+    async function loadSessions(alsoOpenCurrent=false) {
+      const res = await fetch("/api/sessions");
+      const data = await res.json();
+      allSessions = data.sessions || [];
+      // retain current if provided by server
+      currentSessionId = data.current || currentSessionId || (allSessions[0]?.id ?? null);
+      // filter by search
+      const q = searchSessions.value.trim().toLowerCase();
+      const filtered = q ? allSessions.filter(s => (s.title||"").toLowerCase().includes(q)) : allSessions;
+      renderSessions(filtered);
+      // if need to open the chosen current
+      if (alsoOpenCurrent && currentSessionId) {
+        await loadMessages(currentSessionId);
+      }
+      // update header title
+     
+    }
+
+    async function switchSession(id) {
+      if (!id) return;
+      await fetch(`/api/switch-session/${id}`, { method: "POST" });
+      currentSessionId = id;
+      await loadMessages(id);
+      await loadSessions();
+    }
+
+    async function renameSessionInline(id, titleEl) {
+      const cur = allSessions.find(s => s.id === id);
+      const old = cur?.title || "";
+      const next = prompt("Rename chat", old);
+      if (next === null) return;
+      await fetch(`/api/sessions/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: next })
+      });
+      await loadSessions(true);
+    }
+
+    // ---------- Messages ----------
+    async function loadMessages(id) {
+      messagesEl.innerHTML = "";
+      const res = await fetch(`/api/sessions/${id}`);
+      const data = await res.json();
+      (data.session?.messages || []).forEach(m => {
+        const text = (m.parts || []).find(p => p.type === "text")?.content || "";
+        addMessage(text, m.role === "user" ? "user" : "bot", m.timestamp);
+      });
+      if ((data.session?.messages || []).length === 0) {
+        addMessage("New chat started. Ask me anything.", "bot");
+      }
+    }
+
+    // ---------- Voice (Web Speech API) ----------
+    function initSpeech() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return null;
+      const rec = new SR();
+      rec.lang = "en-US";
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onresult = (e) => {
+        const text = e.results[0][0].transcript;
+        inputEl.value = text;
+        sendMessage();
+      };
+      rec.onend = () => { recognizing = false; micBtn.innerHTML = "<i class='bxr  bx-microphone-big'  style='color:#000000'></i> "; };
+      rec.onerror = () => { recognizing = false; micBtn.innerHTML = " <i class='bxr  bx-microphone-big'  style='color:#000000'></i>"; };
+      return rec;
+    }
+    recognition = initSpeech();
+
+    micBtn.addEventListener("click", () => {
+      if (!recognition) { alert("Speech Recognition not supported in this browser."); return; }
+      if (!recognizing) { recognizing = true; micBtn.innerHTML = "<i class='bxr  bx-microphone-slash'  style='color:#000000'></i> ";  recognition.start(); }
+      else { recognition.stop(); }
+    });
+
+    // ---------- Image selection ----------
+    imageBtn.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => {
+      preview.innerHTML = "";
+      queuedImages = Array.from(fileInput.files || []);
+      queuedImages.forEach(file => {
+        const url = URL.createObjectURL(file);
+        const img = document.createElement("img");
+        img.src = url;
+        preview.appendChild(img);
+      });
+    });
+
+    // ---------- Send ----------
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text && (!queuedImages || queuedImages.length === 0)) return;
+
+      // UI: add user message (show previews)
+      const urls = (queuedImages || []).map(f => URL.createObjectURL(f));
+      addMessage(text || "(no text)", "user", null, urls);
+
+      // reset input
+      inputEl.value = "";
+      inputEl.focus();
+
+      setTyping(true);
+
+      try {
+        let resp;
+        if (queuedImages && queuedImages.length) {
+          const fd = new FormData();
+          fd.append("message", text);
+          queuedImages.forEach(f => fd.append("images", f, f.name || "image"));
+          resp = await fetch("/chat", { method: "POST", body: fd });
+        } else {
+          resp = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+          });
+        }
+
+        const data = await resp.json();
+        setTyping(false);
+        addMessage(data.reply || "No reply.", "bot", data.time);
+        // session title might auto-update after first message; refresh list/title
+        await loadSessions();
+      } catch (e) {
+        setTyping(false);
+        addMessage("Network error. Please try again.", "bot");
+      } finally {
+        clearPreview();
+        fileInput.value = "";
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+
+    // ---------- Toolbar ----------
+    ttsToggle.addEventListener("click", () => {
+      ttsOn = !ttsOn;
+      localStorage.setItem("ttsOn", JSON.stringify(ttsOn));
+      ttsToggle.classList.toggle("active", ttsOn);
+    });
+
+    clearChat.addEventListener("click", async () => {
+      if (!confirm("Clear messages in the current chat?")) return;
+      await fetch("/reset", { method: "POST" });
+      messagesEl.innerHTML = "";
+      addMessage("New chat started. Ask me anything.", "bot");
+      await loadSessions();
+    });
+
+    helpBtn.addEventListener("click", showHelp);
+    newChatBtn.addEventListener("click", async () => {
+      const res = await fetch("/api/sessions", { method: "POST" });
+      const data = await res.json();
+      currentSessionId = data.session_id;
+      messagesEl.innerHTML = "";
+      addMessage("New chat started!", "bot");
+      await loadSessions();
+    });
+    refreshBtn.addEventListener("click", () => loadSessions(true));
+    searchSessions.addEventListener("input", () => renderSessions(
+      (searchSessions.value.trim())
+        ? allSessions.filter(s => (s.title||"").toLowerCase().includes(searchSessions.value.trim().toLowerCase()))
+        : allSessions
+    ));
+
+    // ---------- Startup ----------
+    (async function init() {
+      await loadSessions(true); // also opens current
+      if (messagesEl.children.length === 0) {
+        addMessage("Hey! I can understand voice and images now. Try sending a photo and ask about it.", "bot");
+      }
+    })();
+
+    function setTyping(on) { typingEl.style.display = on ? "block" : "none"; }
+  </script>
+</body>
+</html>
